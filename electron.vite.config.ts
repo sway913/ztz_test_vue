@@ -1,6 +1,6 @@
-import { resolve } from "path"
-import { defineConfig, externalizeDepsPlugin, bytecodePlugin } from "electron-vite"
-import vue from "@vitejs/plugin-vue"
+import { resolve } from "path";
+import { defineConfig, externalizeDepsPlugin, bytecodePlugin } from "electron-vite";
+import vue from "@vitejs/plugin-vue";
 
 export default defineConfig({
   main: {
@@ -12,6 +12,7 @@ export default defineConfig({
         "@common": resolve("src/common"),
         "@constants": resolve("src/constants"),
         "@interfaces": resolve("src/interfaces"),
+        "@utils": resolve("src/utils"),
         "@preload": resolve("src/preload"),
       },
     },
@@ -31,4 +32,4 @@ export default defineConfig({
     },
     plugins: [vue()],
   },
-})
+});

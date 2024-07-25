@@ -1,1 +1,3 @@
-export const EXTENSIONS_PROTOCOL = "chrome-extension"
+export * from './settings';
+
+export const EXTENSIONS_PROTOCOL = 'chrome-extension';

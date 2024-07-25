@@ -6,6 +6,7 @@
     "src/common/**/*",
     "src/constants/**/*",
     "src/interfaces/**/*",
+    "src/utils/**/*",
     "src/preload/**/*"
   ],
   "compilerOptions": {
@@ -24,6 +25,9 @@
       ],
       "@interfaces/*": [
         "src/interfaces/*", 
+      ],
+      "@utils/*": [
+        "src/utils/*", 
       ]
     }
   }
