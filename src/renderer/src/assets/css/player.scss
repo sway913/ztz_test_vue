@@ -1,0 +1,79 @@
+.video-js button,
+.video-js video {
+  outline: none;
+}
+
+.video-js .vjs-big-play-button {
+  width: 79px;
+  height: 79px;
+  -o-object-fit: contain;
+  object-fit: contain;
+  background-color: rgba(255, 255, 255, 0.25);
+  border: none;
+  line-height: 79px;
+  top: 50%;
+  left: 50%;
+  border-radius: 100%;
+  margin: -51.5px auto 0 -39.5px;
+}
+
+.video-js .vjs-big-play-button .vjs-icon-placeholder:before {
+  font-size: 44px;
+}
+
+.video-js:hover .vjs-big-play-button,
+.video-js .vjs-big-play-button:focus {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.video-js .vjs-button > .vjs-icon-placeholder:before {
+  font-size: 2.5em;
+}
+
+.video-js .vjs-control-bar {
+  height: 4em;
+  background-color: rgba(0, 0, 0, 0.8);
+  user-select: none;
+}
+
+.video-js .vjs-time-control {
+  display: block;
+  line-height: 4em;
+}
+
+.video-js .vjs-volume-control.vjs-volume-vertical {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.video-js .vjs-volume-control:hover .vjs-volume-tooltip {
+  font-size: 1.5em;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 2px;
+  color: #fff;
+}
+
+.video-js .vjs-progress-control:hover .vjs-progress-holder {
+  font-size: inherit;
+}
+
+.video-js .vjs-progress-control .vjs-time-tooltip {
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 2px;
+  color: #fff;
+}
+
+.video-js .vjs-progress-control:hover .vjs-time-tooltip {
+  font-size: 1.5em;
+}
+
+.video-js .vjs-play-progress.vjs-slider-bar .vjs-time-tooltip {
+  display: none;
+}
+
+.video-js .vjs-current-time-display,
+.video-js .vjs-duration-display {
+  font-size: 14px;
+  display: flex;
+  justify-content: center;
+  min-width: 44px;
+}

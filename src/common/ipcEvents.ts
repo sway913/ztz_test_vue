@@ -10,4 +10,5 @@ export enum IpcEvents {
   PC_VIEW_CREATE = "pc:view-create",
   PC_VIEW_SELECT = "pc:view-select",
   PC_VIEW_F12 = "pc:view-f12",
+  PC_OPEN_DIALOG = "pc:open-dialog",
 }

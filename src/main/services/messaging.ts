@@ -1,6 +1,6 @@
 /* Copyright (c) 2021-2024 Damon Smith */
 
-import { ipcMain } from "electron";
+import { ipcMain, dialog } from "electron";
 // import { getPassword, setPassword, deletePassword } from 'keytar';
 
 import { AppWindow } from "../windows";
@@ -19,6 +19,8 @@ import { PreviewDialog } from "../dialogs/preview";
 import { showIncognitoDialog } from "../dialogs/incogitoMenu";
 import { showMenuExtraDialog } from "../dialogs/menuExtra";
 import { showTabGroupDialog } from "../dialogs/tabgroup";
+
+import { IpcEvents } from "../../common/ipcEvents";
 
 export const runMessagingService = (appWindow: AppWindow) => {
   const { id } = appWindow;
@@ -117,6 +119,33 @@ export const runMessagingService = (appWindow: AppWindow) => {
 
   ipcMain.on(`show-incognitoMenu-dialog-${id}`, (e, x, y) => {
     showIncognitoDialog(appWindow.win, x, y);
+  });
+
+  //-------------ztz TEST-----------
+  ipcMain.handle(IpcEvents.PC_OPEN_DIALOG, async (e, strParams) => {
+    console.log("strParams", strParams);
+    return await dialog
+    .showOpenDialog(appWindow.win!, {
+      title: "Select Videos",
+      properties: ["openFile", "multiSelections"],
+      filters: [{ name: "video file", extensions: ["mp4"] }],
+    })
+    .then((re) => {
+      if (!re.canceled) {
+        console.log(re.filePaths)
+        let jsonData = { code: 0 }
+        var fileList = {
+          file: re.filePaths[0],
+          filesize: "87324797",
+          info: '{"BitRate":"10167642","Duration":"70000","FileSize":"87324797","Format":"MPEG-4","FrameRate":"25.000","audio":[{"Duration":"70000","Format":"AAC"}],"video":[{"BitRate":"10037274","Duration":"70000","Format":"AVC","FrameRate":"25.000","Height":"1080","Width":"1920"}]}',
+        }
+        jsonData["filelist"] = [fileList]
+        let strJson = JSON.stringify(jsonData)
+        console.log(strJson)
+        return jsonData
+      }
+      return re.filePaths
+    })
   });
 
   if (process.env.ENABLE_AUTOFILL) {
