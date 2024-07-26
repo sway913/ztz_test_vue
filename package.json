@@ -25,7 +25,8 @@
     "@electron-toolkit/utils": "^3.0.0",
     "electron-chrome-extensions-suit": "^1.0.2",
     "crypto-js": "^4.0.0",
-    "js-base64": "^3.4.4"
+    "js-base64": "^3.4.4",
+    "koffi": "^2.8.8"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config": "^1.0.2",

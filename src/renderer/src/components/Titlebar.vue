@@ -43,10 +43,12 @@ useIpcRendererOn(IpcEvents.WIN_MAX_REPLY, (_, arg: boolean) => {
     </div>
     <div class="titlebar__opr">
       <div class="win-control">
-        <div class="win-control__btn win-control__btn-min codicon codicon-win-minimize" @click="handleClick('minimize')">
+        <div class="win-control__btn win-control__btn-min codicon codicon-win-minimize"
+          @click="handleClick('minimize')">
         </div>
         <div class="win-control__btn win-control__btn-max codicon"
-          :class="[maximize ? 'codicon-win-restore' : 'codicon-win-maximize']" @click="handleClick(maximize ? 'restore' : 'maximize')"></div>
+          :class="[maximize ? 'codicon-win-restore' : 'codicon-win-maximize']"
+          @click="handleClick(maximize ? 'restore' : 'maximize')"></div>
         <div class="win-control__btn win-control__btn-close codicon codicon-win-close" @click="handleClick('close')">
         </div>
       </div>

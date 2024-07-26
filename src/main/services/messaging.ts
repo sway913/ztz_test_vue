@@ -21,6 +21,7 @@ import { showMenuExtraDialog } from "../dialogs/menuExtra";
 import { showTabGroupDialog } from "../dialogs/tabgroup";
 import { IpcEvents } from "../../common/ipcEvents";
 import { Base64 } from "js-base64";
+import SDKHelper from "../utils/sdk-helper";
 const path = require("path");
 const fs = require("fs");
 
@@ -171,6 +172,9 @@ export const runMessagingService = (appWindow: AppWindow) => {
   });
 
   ipcMain.handle("GetSystemInfo", async (e, params) => {
+    const sdkHelper = new SDKHelper();
+    sdkHelper.init();
+    sdkHelper.close();
     let jsonData = {
       code: 0,
       data: {
