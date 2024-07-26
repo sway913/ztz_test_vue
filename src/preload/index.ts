@@ -10,6 +10,7 @@ const api = {}
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld("electron", electronAPI)
+    contextBridge.exposeInMainWorld("CallPCClientMethod", electronAPI.ipcRenderer.invoke)
     contextBridge.exposeInMainWorld("ipcSend", electronAPI.ipcRenderer.send)
     contextBridge.exposeInMainWorld("ipcOn", electronAPI.ipcRenderer.on)
     contextBridge.exposeInMainWorld("ipcInvoke", electronAPI.ipcRenderer.invoke)
@@ -19,6 +20,8 @@ if (process.contextIsolated) {
 } else {
   // @ts-ignore (define in dts)
   window.electron = electronAPI
+  // @ts-ignore (define in dts)
+  window.CallPCClientMethod = electronAPI.ipcRenderer.invoke
   // @ts-ignore (define in dts)
   window.ipcSend = electronAPI.ipcRenderer.send
   // @ts-ignore (define in dts)
