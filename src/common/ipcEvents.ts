@@ -7,8 +7,9 @@ export enum IpcEvents {
   EV_PLAY = "ev:play",
   EV_PAUSE = "ev:pause",
   PC_TEST = "pc:test",
+  PC_WINDOW_OPERATE = "pc:window-op",
   PC_VIEW_CREATE = "pc:view-create",
   PC_VIEW_SELECT = "pc:view-select",
   PC_VIEW_F12 = "pc:view-f12",
-  PC_OPEN_DIALOG = "pc:open-dialog",
+  PC_OPEN_DIALOG = "OpenLocalFile",
 }

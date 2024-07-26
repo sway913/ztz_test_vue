@@ -23,7 +23,9 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
-    "electron-chrome-extensions-suit": "^1.0.2"
+    "electron-chrome-extensions-suit": "^1.0.2",
+    "crypto-js": "^4.0.0",
+    "js-base64": "^3.4.4"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config": "^1.0.2",

@@ -13,8 +13,8 @@ const emit = defineEmits<{
 
 const maximize = ref(false)
 
-const handleClick = (action: 'min' | 'max' | 'close'): void => {
-  window.electron.ipcRenderer.send(IpcEvents.WIN_INVOKE, action)
+const handleClick = (action: 'minimize' | 'maximize' | 'restore' | 'close'): void => {
+  window.electron.ipcRenderer.send(IpcEvents.PC_WINDOW_OPERATE, action)
 }
 
 const handleTabsClick = (action: string): void => {
@@ -27,16 +27,6 @@ const handleTabsClick = (action: string): void => {
   if (action === 'f12') {
     window.electron.ipcRenderer.send(IpcEvents.PC_VIEW_F12, 2, 1)
   }
-}
-
-const openVideo = async () => {
-  let jsonData = {
-    accept: "mp4",
-    isMultiple: true,
-  }
-  let strParams = JSON.stringify(jsonData)
-  const strJson = await window.electron.ipcRenderer.invoke(IpcEvents.PC_OPEN_DIALOG, strParams)
-  return strJson;
 }
 
 useIpcRendererOn(IpcEvents.WIN_MAX_REPLY, (_, arg: boolean) => {
@@ -52,15 +42,11 @@ useIpcRendererOn(IpcEvents.WIN_MAX_REPLY, (_, arg: boolean) => {
       <button @click="handleTabsClick('f12')">打开F12</button>
     </div>
     <div class="titlebar__opr">
-      <ul class="toolbar">
-        <li @click="openVideo"><a class="codicon codicon-open"></a></li>
-        <li @click="emit('toggle-playlist')"><a class="codicon codicon-right-layout"></a></li>
-      </ul>
       <div class="win-control">
-        <div class="win-control__btn win-control__btn-min codicon codicon-win-minimize" @click="handleClick('min')">
+        <div class="win-control__btn win-control__btn-min codicon codicon-win-minimize" @click="handleClick('minimize')">
         </div>
         <div class="win-control__btn win-control__btn-max codicon"
-          :class="[maximize ? 'codicon-win-restore' : 'codicon-win-maximize']" @click="handleClick('max')"></div>
+          :class="[maximize ? 'codicon-win-restore' : 'codicon-win-maximize']" @click="handleClick(maximize ? 'restore' : 'maximize')"></div>
         <div class="win-control__btn win-control__btn-close codicon codicon-win-close" @click="handleClick('close')">
         </div>
       </div>

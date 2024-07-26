@@ -1,6 +1,6 @@
 /* Copyright (c) 2021-2024 Damon Smith */
 
-import { ipcMain, dialog } from "electron";
+import { ipcMain, dialog, app } from "electron";
 // import { getPassword, setPassword, deletePassword } from 'keytar';
 
 import { AppWindow } from "../windows";
@@ -19,8 +19,10 @@ import { PreviewDialog } from "../dialogs/preview";
 import { showIncognitoDialog } from "../dialogs/incogitoMenu";
 import { showMenuExtraDialog } from "../dialogs/menuExtra";
 import { showTabGroupDialog } from "../dialogs/tabgroup";
-
 import { IpcEvents } from "../../common/ipcEvents";
+import { Base64 } from "js-base64";
+const path = require("path");
+const fs = require("fs");
 
 export const runMessagingService = (appWindow: AppWindow) => {
   const { id } = appWindow;
@@ -123,30 +125,160 @@ export const runMessagingService = (appWindow: AppWindow) => {
 
   //-------------ztz TEST-----------
   ipcMain.handle(IpcEvents.PC_OPEN_DIALOG, async (e, strParams) => {
-    console.log("strParams", strParams);
+    // console.log("strParams", strParams);
     return await dialog
-    .showOpenDialog(appWindow.win!, {
-      title: "Select Videos",
-      properties: ["openFile", "multiSelections"],
-      filters: [{ name: "video file", extensions: ["mp4"] }],
-    })
-    .then((re) => {
-      if (!re.canceled) {
-        console.log(re.filePaths)
-        let jsonData = { code: 0 }
-        var fileList = {
-          file: re.filePaths[0],
-          filesize: "87324797",
-          info: '{"BitRate":"10167642","Duration":"70000","FileSize":"87324797","Format":"MPEG-4","FrameRate":"25.000","audio":[{"Duration":"70000","Format":"AAC"}],"video":[{"BitRate":"10037274","Duration":"70000","Format":"AVC","FrameRate":"25.000","Height":"1080","Width":"1920"}]}',
+      .showOpenDialog(appWindow.win!, {
+        title: "Select Videos",
+        properties: ["openFile", "multiSelections"],
+        filters: [{ name: "video file", extensions: ["mp4"] }],
+      })
+      .then((re) => {
+        if (!re.canceled) {
+          console.log(re.filePaths);
+          let jsonData = { code: 0 };
+          var fileList = {
+            file: re.filePaths[0],
+            filesize: "87324797",
+            info: '{"BitRate":"10167642","Duration":"70000","FileSize":"87324797","Format":"MPEG-4","FrameRate":"25.000","audio":[{"Duration":"70000","Format":"AAC"}],"video":[{"BitRate":"10037274","Duration":"70000","Format":"AVC","FrameRate":"25.000","Height":"1080","Width":"1920"}]}',
+          };
+          jsonData["filelist"] = [fileList];
+          let strJson = JSON.stringify(jsonData);
+          console.log(strJson);
+          return jsonData;
         }
-        jsonData["filelist"] = [fileList]
-        let strJson = JSON.stringify(jsonData)
-        console.log(strJson)
-        return jsonData
-      }
-      return re.filePaths
-    })
+        return re.filePaths;
+      });
   });
+
+  ipcMain.handle("getSystemInfo", async (e, params) => {
+    let jsonData = {
+      code: 0,
+      data: {
+        arch: "x64",
+        channel: "domain",
+        inst_hours: "816",
+        ip: "10.17.39.113",
+        m2: "b3474e70658157c89fc024d79c63f9e6061581c22b4c",
+        mid: "78dcee0191e150704c8cc6a087347263",
+        os: "Windows 11",
+        product_name: "aikkkk",
+        version: "1.0.0.1001",
+      },
+    };
+    let strJson = JSON.stringify(jsonData);
+    // console.log("------------------------------GetSystemInfo 1------------------------------------", strJson);
+    return jsonData;
+  });
+
+  ipcMain.handle("GetSystemInfo", async (e, params) => {
+    let jsonData = {
+      code: 0,
+      data: {
+        arch: "x64",
+        channel: "domain",
+        inst_hours: "816",
+        ip: "10.17.39.113",
+        m2: "b3474e70658157c89fc024d79c63f9e6061581c22b4c",
+        mid: "78dcee0191e150704c8cc6a087347263",
+        os: "Windows 11",
+        product_name: "aikkkk",
+        version: "1.0.0.1001",
+      },
+    };
+    let strJson = JSON.stringify(jsonData);
+    // console.log("------------------------------GetSystemInfo 2------------------------------------", strJson);
+    return jsonData;
+  });
+
+  ipcMain.handle("GetSystemFonts", async (e, params) => {
+    let jsonData = {
+      code: 0,
+      fontlist: [
+        "Agency FB",
+        "Algerian",
+        "Arial",
+        "Arial Black",
+        "Arial Narrow",
+        "Arial Rounded MT Bold",
+        "Bahnschrift",
+      ],
+    };
+    let strJson = JSON.stringify(jsonData);
+    // console.log("------------------------------GetSystemFonts------------------------------------", strJson);
+    return jsonData;
+  });
+
+  ipcMain.handle("GetBaseConfig", async (e, params) => {
+    const appDataPath = app.getPath("appData");
+    let jsonData = {
+      cache: appDataPath + "\\AIQuickMediaEditor\\User Data\\MediaCache\\",
+      code: 0,
+      export: "C:\\AI快剪辑视频\\",
+      hwaccelexport: 1,
+      project: appDataPath + "\\AIQuickMediaEditor\\User Data\\MyProjects\\",
+      supporthwaccel: 1,
+    };
+    let strJson = JSON.stringify(jsonData);
+    // console.log("------------------------------GetBaseConfig------------------------------------", strJson);
+    return jsonData;
+  });
+
+  ipcMain.handle("PathExist", async (e, params) => {
+    let jsonData = {
+      code: 0,
+      exist: 1,
+      filesize: "8050",
+    };
+    let strJson = JSON.stringify(jsonData);
+    // console.log("------------------------------PathExist------------------------------------", strJson);
+    return jsonData;
+  });
+
+  interface ContentData {
+    method: string;
+    params?: {
+      content: string;
+      path?: string;
+    };
+  }
+
+  ipcMain.handle("SaveFile", async (e, params) => {
+    let inJson = JSON.stringify(params);
+    // console.log("-------------SaveFile------" + inJson);
+    let outPath = "";
+    const json_data: ContentData = JSON.parse(params);
+    if (json_data.params && json_data.params.path) {
+      outPath = json_data.params.path;
+      const dirPath = path.dirname(outPath);
+      if (fs.existsSync(dirPath)) {
+        // console.log("Directory exists.")
+      } else {
+        await fs.promises
+          .mkdir(dirPath)
+          .then(function () {
+            console.log("Directory created successfully");
+          })
+          .catch(function () {
+            console.log("failed to create directory");
+          });
+      }
+      // all content is base64
+      fs.writeFileSync(outPath, Base64.decode(json_data.params.content));
+    }
+
+    let jsonData = { code: 0, path: outPath };
+    let strJson = JSON.stringify(jsonData);
+    return strJson;
+  });
+
+  ipcMain.on(IpcEvents.PC_WINDOW_OPERATE, (e, data) => {
+    if (data === "minimize") {
+      appWindow.win.minimize();
+    } else if (data === "close") {
+      appWindow.win.close();
+    }
+  });
+
 
   if (process.env.ENABLE_AUTOFILL) {
     // TODO: autofill

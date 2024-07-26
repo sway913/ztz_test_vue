@@ -9,6 +9,7 @@ import { runMessagingService } from "../services";
 import { Application } from "../application";
 import { isNightly } from "..";
 import { ViewManager } from "../view-manager";
+import { IpcEvents } from "../../common/ipcEvents";
 import path from "path";
 
 export class AppWindow {
@@ -34,7 +35,7 @@ export class AppWindow {
         nodeIntegration: true,
         contextIsolation: false,
         webSecurity: false,
-        sandbox: false
+        sandbox: false,
       },
       trafficLightPosition: {
         x: 18,
@@ -108,9 +109,20 @@ export class AppWindow {
       this.webContents.send("tabs-resize");
     };
 
+    const winop = () => {
+      console.log("aa");
+    };
+
     this.win.on("maximize", resize);
     this.win.on("restore", resize);
     this.win.on("unmaximize", resize);
+
+    this.win.on("minimize", winop);
+    this.win.on("close", winop);
+
+    // ipcMain.on(`window-close-${id}`, () => {
+    //   appWindow.win.close();
+    // });
 
     // this.webContents.openDevTools({ mode: 'detach' });
 
