@@ -252,9 +252,10 @@ export class ViewManager extends EventEmitter {
 
     const { width, height } = this.window.win.getContentBounds();
 
-    const toolbarContentHeight = await this.window.win.webContents.executeJavaScript(`
-      document.getElementById('app').offsetHeight
-    `);
+    // const toolbarContentHeight = await this.window.win.webContents.executeJavaScript(`
+    //   document.getElementById('app').offsetHeight
+    // `);
+    const toolbarContentHeight = 50;
 
     const newBounds = {
       x: 0,
