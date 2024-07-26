@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { IpcEvents } from "@common/ipcEvents"
 
-const handleClick = (action: 'new' | 'show' | 'close'): void => {
-  alert(window.electron)
+const handleClick = (action: 'new' | 'show' | 'f12'): void => {
+  // alert(window.electron)
   if (action === 'new') {
-    // window.electron.ipcRenderer.send(IpcEvents.PC_VIEW_CREATE, "https://pro.kuaijianji.com/editor")
-    window.electron.ipcRenderer.send(IpcEvents.PC_VIEW_CREATE, "https://www.baidu.com")
+    window.electron.ipcRenderer.send(IpcEvents.PC_VIEW_CREATE, "https://pro.kuaijianji.com/editor")
+    // window.electron.ipcRenderer.send(IpcEvents.PC_VIEW_CREATE, "https://www.baidu.com")
   }
   if (action === 'show') {
     window.electron.ipcRenderer.send(IpcEvents.PC_VIEW_SELECT, 2, 1)
+  }
+  if (action === 'f12') {
+    window.electron.ipcRenderer.send(IpcEvents.PC_VIEW_F12, 2, 1)
   }
 }
 
@@ -17,8 +20,9 @@ const handleClick = (action: 'new' | 'show' | 'close'): void => {
 
 <template>
   <div class="main">
-    <div class="win-control" @click="handleClick('new')">新建  </div>
-    <div class="win-control" @click="handleClick('show')">  显示</div>
+    <div class="win-control" @click="handleClick('new')">创建页面</div>
+    <div class="win-control" @click="handleClick('show')">显示页面</div>
+    <div class="win-control" @click="handleClick('f12')">打开当前页面F12</div>
   </div>
 </template>
 
@@ -27,7 +31,7 @@ const handleClick = (action: 'new' | 'show' | 'close'): void => {
   flex: 1;
   display: flex;
   margin: 0 auto;
-  margin-right: 4px;
+  margin-right: 40px;
 }
 .win-control {
   padding: 10px;

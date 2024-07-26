@@ -9,4 +9,5 @@ export enum IpcEvents {
   PC_TEST = "pc:test",
   PC_VIEW_CREATE = "pc:view-create",
   PC_VIEW_SELECT = "pc:view-select",
+  PC_VIEW_F12 = "pc:view-f12",
 }

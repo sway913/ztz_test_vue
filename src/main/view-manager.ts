@@ -91,6 +91,11 @@ export class ViewManager extends EventEmitter {
       this.select(id, focus);
     });
 
+    ipcMain.on(IpcEvents.PC_VIEW_F12, (e, id: number, focus: boolean) => {
+      const view = this.views.get(id);
+      view.webContents.openDevTools({ mode: "detach" });
+    });
+
     ipcMain.removeHandler("get-tab-zoom");
     ipcMain.handle("get-tab-zoom", (e: any, tabId: number) => {
       // const zoom = this.findByContentView(tabId).viewManager.views.get(tabId)

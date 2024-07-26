@@ -63,14 +63,13 @@ export class View {
     const { object: webset } = Application.instance.settings;
     this.webContentsView = new WebContentsView({
       webPreferences: {
-        preload: path.join(__dirname, "./preload/index.js"),
+        preload: path.join(__dirname, "../preload/index.js"),
         nodeIntegration: false,
-        contextIsolation: true,
-        sandbox: true,
+        contextIsolation: false,
         partition: incognito ? "view_incognito" : "persist:view",
         plugins: true,
-        webSecurity: true,
-        javascript: true,
+        webSecurity: false,
+        sandbox: false,
         ...(!webset.autoplay
           ? {
               autoplayPolicy: "user-gesture-required",

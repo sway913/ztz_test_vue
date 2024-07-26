@@ -33,7 +33,8 @@ export class AppWindow {
         preload: path.join(__dirname, "../preload/index.js"),
         nodeIntegration: true,
         contextIsolation: false,
-        javascript: true,
+        webSecurity: false,
+        sandbox: false
       },
       trafficLightPosition: {
         x: 18,
