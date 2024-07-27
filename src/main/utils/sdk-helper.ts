@@ -1,6 +1,8 @@
 import path from "path";
 import koffi from "koffi";
 
+// https://koffi.dev/functions
+
 class SDKHelper {
   public isRun: boolean = false;
 

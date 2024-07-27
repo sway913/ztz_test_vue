@@ -62,7 +62,6 @@ export class AppWindow {
       } catch (e) {
         // await promises.writeFile(windowDataPath, JSON.stringify({}));
       }
-
       // Merge bounds from the last window state to the current window options.
       if (windowState) {
         this.win.setBounds({ ...windowState.bounds });
@@ -168,7 +167,9 @@ export class AppWindow {
     //    });
 
     this.win.on("focus", () => {
-      Application.instance.windows.current = this;
+      if (Application.instance.windows) {
+        Application.instance.windows.current = this;
+      }
     });
   }
 

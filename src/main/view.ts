@@ -4,7 +4,6 @@ import { WebContentsView, app, ipcMain } from "electron";
 import { URL } from "url";
 import { getViewMenu } from "./menus/view";
 import { AppWindow } from "./windows";
-import { IHistoryItem, IBookmark } from "@interfaces/index";
 import { ERROR_PROTOCOL, NETWORK_ERROR_HOST, WEBUI_BASE_URL } from "@constants/files";
 import { NEWTAB_URL } from "@constants/tabs";
 import { ZOOM_FACTOR_MIN, ZOOM_FACTOR_MAX, ZOOM_FACTOR_INCREMENT } from "@constants/web-contents";
@@ -35,27 +34,10 @@ export class View {
 
   public bounds: any;
 
-  public lastHistoryId: string;
-
-  public bookmark: IBookmark;
-
   public findInfo = {
     occurrences: "0/0",
     text: "",
   };
-
-  public requestedAuth: IAuthInfo;
-  public requestedPermission: {
-    name: string;
-    url: string;
-    details: {
-      isMainFrame: boolean;
-      requestingUrl: string;
-      [key: string]: any;
-    };
-  };
-
-  private historyQueue = new Queue();
 
   private lastUrl = "";
 
@@ -105,9 +87,7 @@ export class View {
       menu.popup();
     });
 
-    this.webContents.addListener("found-in-page", (e, result) => {
-      Application.instance.dialogs.getDynamic("find").webContentsView.webContents.send("found-in-page", result);
-    });
+    this.webContents.addListener("found-in-page", (e, result) => {});
 
     this.webContents.addListener("page-title-updated", async (e, title) => {
       this.window.updateTitle();
@@ -118,6 +98,10 @@ export class View {
     });
 
     this.webContents.addListener("did-navigate", async (e, url) => {
+      if (!this.webContentsView) {
+        return;
+      }
+
       this.webContentsView.setBackgroundColor("#FFFFFFFF");
       this.emitEvent("did-navigate", url);
       // await this.addHistoryItem(url);
@@ -125,6 +109,10 @@ export class View {
     });
 
     this.webContents.addListener("did-navigate-in-page", async (e, url, isMainFrame) => {
+      if (!this.webContentsView) {
+        return;
+      }
+
       if (isMainFrame) {
         this.webContentsView.setBackgroundColor("#FFFFFFFF");
         this.window.updateTitle();
@@ -139,6 +127,10 @@ export class View {
     });
 
     this.webContents.addListener("did-stop-loading", async () => {
+      if (!this.webContentsView) {
+        return;
+      }
+
       this.webContentsView.setBackgroundColor("#FFFFFFFF");
       this.updateNavigationState();
       this.emitEvent("loading", false);
@@ -146,6 +138,9 @@ export class View {
     });
 
     this.webContents.addListener("did-start-loading", async () => {
+      if (!this.webContentsView) {
+        return;
+      }
       this.webContentsView.setBackgroundColor("#FFFFFFFF");
       this.hasError = false;
       this.updateNavigationState();
@@ -154,6 +149,9 @@ export class View {
     });
 
     this.webContents.addListener("did-start-navigation", async (e, ...args) => {
+      if (!this.webContentsView) {
+        return;
+      }
       this.webContentsView.setBackgroundColor("#FFFFFFFF");
       this.updateNavigationState();
 
@@ -287,18 +285,30 @@ export class View {
   }
 
   public get webContents() {
+    if (!this.webContentsView) {
+      return;
+    }
     return this.webContentsView.webContents;
   }
 
   public get url() {
+    if (!this.webContents) {
+      return '';
+    }
     return this.webContents.getURL();
   }
 
   public get title() {
+    if (!this.webContents) {
+      return;
+    }
     return this.webContents.getTitle();
   }
 
   public get id() {
+    if (!this.webContents) {
+      return;
+    }
     return this.webContents.id;
   }
 
@@ -307,6 +317,9 @@ export class View {
   }
 
   public updateNavigationState() {
+    if (!this.webContentsView || !this.webContents) {
+      return;
+    }
     if (this.webContentsView.webContents.isDestroyed()) return;
 
     if (this.window.viewManager.selectedId === this.id) {
@@ -321,11 +334,17 @@ export class View {
   }
 
   public destroy() {
+    if (!this.webContentsView ) {
+      return;
+    }
     (this.webContentsView.webContents as any).destroy();
     this.webContentsView = null;
   }
 
   public async updateCredentials() {
+    if (!this.webContentsView) {
+      return;
+    }
     if (!process.env.ENABLE_AUTOFILL || this.webContentsView.webContents.isDestroyed()) return;
 
     const item = await Application.instance.storage.findOne<any>({
@@ -339,36 +358,7 @@ export class View {
   }
 
   public async addHistoryItem(url: string, inPage = false) {
-    if (
-      url !== this.lastUrl &&
-      !url.startsWith(WEBUI_BASE_URL) &&
-      !url.startsWith(`${ERROR_PROTOCOL}://`) &&
-      !this.incognito
-    ) {
-      const historyItem: IHistoryItem = {
-        title: this.title,
-        url,
-        favicon: this.favicon,
-        date: new Date().getTime(),
-      };
-
-      await this.historyQueue.enqueue(async () => {
-        this.lastHistoryId = (
-          await Application.instance.storage.insert<IHistoryItem>({
-            scope: "history",
-            item: historyItem,
-          })
-        )._id;
-
-        historyItem._id = this.lastHistoryId;
-
-        Application.instance.storage.history.push(historyItem);
-      });
-    } else if (!inPage) {
-      await this.historyQueue.enqueue(async () => {
-        this.lastHistoryId = "";
-      });
-    }
+    
   }
 
   public updateURL = async (url: string) => {
@@ -394,47 +384,17 @@ export class View {
   }
 
   public updateBookmark() {
-    this.bookmark = Application.instance.storage.bookmarks.find((x) => x.url === this.url);
 
-    if (!this.isSelected) return;
-
-    this.window.send("is-bookmarked", !!this.bookmark);
   }
 
   public async updateData() {
-    if (!this.incognito) {
-      const id = this.lastHistoryId;
-      if (id) {
-        const { title, color, url, favicon } = this;
-
-        await this.historyQueue.enqueue(async () => {
-          await Application.instance.storage.update({
-            scope: "history",
-            query: {
-              _id: id,
-            },
-            value: {
-              title,
-              color,
-              url,
-              favicon,
-            },
-            multi: false,
-          });
-
-          const item = Application.instance.storage.history.find((x) => x._id === id);
-
-          if (item) {
-            item.title = title;
-            item.url = url;
-            item.favicon = favicon;
-          }
-        });
-      }
-    }
+    
   }
 
   public send(channel: string, ...args: any[]) {
+    if (!this.webContents) {
+      return;
+    }
     this.webContents.send(channel, ...args);
   }
 

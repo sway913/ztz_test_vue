@@ -2,9 +2,6 @@
 
 import { WebContentsView, app, ipcMain } from "electron";
 import { join } from "path";
-import { SearchDialog } from "../dialogs/search";
-import { PreviewDialog } from "../dialogs/preview";
-import { PersistentDialog } from "../dialogs/dialog";
 import { Application } from "../application";
 import { IRectangle } from "@interfaces/index";
 
@@ -52,13 +49,8 @@ export class DialogsService {
   public childViewDetails = new Map<number, boolean>();
   public dialogs: IDialog[] = [];
 
-  public persistentDialogs: PersistentDialog[] = [];
-
   public run() {
     this.createChildView();
-
-    this.persistentDialogs.push(new SearchDialog());
-    this.persistentDialogs.push(new PreviewDialog());
   }
 
   private createChildView() {
@@ -281,7 +273,7 @@ export class DialogsService {
   }
 
   public getChildViews = () => {
-    return this.childViews.concat(Array.from(this.persistentDialogs).map((x) => x.webContentsView));
+    return null;
   };
 
   public destroy = () => {
@@ -301,7 +293,7 @@ export class DialogsService {
   }
 
   public getPersistent(name: string) {
-    return this.persistentDialogs.find((x) => x.name === name);
+    return null;
   }
 
   public isVisible = (name: string) => {

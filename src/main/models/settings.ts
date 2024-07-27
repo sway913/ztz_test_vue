@@ -2,7 +2,7 @@
 
 import { ipcMain, nativeTheme, dialog, app } from "electron";
 
-import { DEFAULT_SETTINGS, DEFAULT_SEARCH_ENGINES } from "@constants";
+import { DEFAULT_SETTINGS, DEFAULT_SEARCH_ENGINES } from "@constants/index";
 
 import { promises } from "fs";
 
@@ -91,8 +91,6 @@ export class Settings extends EventEmitter {
     if (themeSource !== nativeTheme.themeSource) {
       nativeTheme.themeSource = themeSource as any;
     }
-
-    Application.instance.dialogs.sendToAll("update-settings", this.object);
 
     for (const window of Application.instance.windows.list) {
       window.send("update-settings", this.object);

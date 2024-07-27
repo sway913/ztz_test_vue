@@ -9,25 +9,17 @@ import { Settings } from "./models/settings";
 import { isURL, prefixHttp } from "@utils/index";
 import { WindowsService } from "./windows-service";
 import { StorageService } from "./services/storage";
-import { getMainMenu } from "./menus/main";
 import { DialogsService } from "./services/dialogs-service";
-import { requestAuth } from "./dialogs/auth";
-import { NetworkServiceHandler } from "./network/network-service-handler";
-import { ExtensionServiceHandler } from "./extension-service-handler";
-import { runDefaultBrowserService } from "./services";
-
 export class Application {
   public static instance = new Application();
 
-  public sessions: SessionsService;
+  public sessions: SessionsService | null;
 
-  public settings: Settings;
+  public settings: Settings | null;
 
-  public storage: StorageService;
+  public storage: StorageService | null;
 
-  public windows: WindowsService;
-
-  public dialogs = new DialogsService();
+  public windows: WindowsService | null;
 
   public async start() {
     const gotTheLock = app.requestSingleInstanceLock();
@@ -37,6 +29,10 @@ export class Application {
       return;
     } else {
       app.on("open-url", async (_, url) => {
+        if (!this.windows) {
+          return;
+        }
+
         if (!this.windows.current) {
           this.windows.current = this.windows.open();
         }
@@ -46,15 +42,20 @@ export class Application {
           active: true,
         });
         this.windows.current.win.webContents.once("dom-ready", () => {
-          this.windows.current.viewManager.create({
-            url: url,
-            active: true,
-          });
+          if (this.windows && this.windows.current) {
+            this.windows.current.viewManager.create({
+              url: url,
+              active: true,
+            });
+          }
         });
       });
 
       app.on("second-instance", async (e, argv) => {
         const path = argv[argv.length - 1];
+        if (!this.windows) {
+          return;
+        }
 
         if (isAbsolute(path) && existsSync(path)) {
           if (process.env.NODE_ENV !== "development") {
@@ -72,10 +73,12 @@ export class Application {
                 active: true,
               });
               this.windows.current.win.webContents.once("dom-ready", () => {
-                this.windows.current.viewManager.create({
-                  url: `file:///${path}`,
-                  active: true,
-                });
+                if (this.windows && this.windows.current) {
+                  this.windows.current.viewManager.create({
+                    url: `file:///${path}`,
+                    active: true,
+                  });
+                }
               });
             }
           }
@@ -91,10 +94,12 @@ export class Application {
             active: true,
           });
           this.windows.current.win.webContents.once("dom-ready", () => {
-            this.windows.current.viewManager.create({
-              url: prefixHttp(path),
-              active: true,
-            });
+            if (this.windows && this.windows.current) {
+              this.windows.current.viewManager.create({
+                url: prefixHttp(path),
+                active: true,
+              });
+            }
           });
 
           return;
@@ -103,21 +108,6 @@ export class Application {
         this.windows.open();
       });
     }
-
-    // app.on("login", async (e, webContents, request, authInfo, callback) => {
-    //   e.preventDefault();
-
-    //   // const window = this.windows.findByContentsView(webContents.id);
-    //   // const credentials = await requestAuth(window.win, request.url, webContents.id);
-
-    //   // if (credentials) {
-    //   //   callback(credentials.username, credentials.password);
-    //   // }
-    // });
-
-    // ipcMain.on("create-window", (e, incognito = false) => {
-    //   this.windows.open(incognito);
-    // });
 
     await this.onReady();
   }

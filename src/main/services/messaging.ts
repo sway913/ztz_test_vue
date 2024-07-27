@@ -5,20 +5,8 @@ import { ipcMain, dialog, app } from "electron";
 
 import { AppWindow } from "../windows";
 import { Application } from "../application";
-import { showMenuDialog } from "../dialogs/menu";
-import { IFormFillData, IBookmark } from "@interfaces/index";
-import { SearchDialog } from "../dialogs/search";
+import { IFormFillData } from "@interfaces/index";
 import { URL } from "url";
-import * as bookmarkMenu from "../menus/bookmarks";
-import { showFindDialog } from "../dialogs/find";
-import { showAddBookmarkDialog } from "../dialogs/add-bookmark";
-import { showExtensionDialog } from "../dialogs/extension-popup";
-import { showDownloadsDialog } from "../dialogs/downloads";
-import { showZoomDialog } from "../dialogs/zoom";
-import { PreviewDialog } from "../dialogs/preview";
-import { showIncognitoDialog } from "../dialogs/incogitoMenu";
-import { showMenuExtraDialog } from "../dialogs/menuExtra";
-import { showTabGroupDialog } from "../dialogs/tabgroup";
 import { IpcEvents } from "../../common/ipcEvents";
 import { Base64 } from "js-base64";
 import SDKHelper from "../utils/sdk-helper";
@@ -54,13 +42,11 @@ export const runMessagingService = (appWindow: AppWindow) => {
   });
 
   ipcMain.on(`show-menu-dialog-${id}`, (e, x, y) => {
-    showMenuDialog(appWindow.win, x, y);
+
   });
 
   ipcMain.on(`search-show-${id}`, (e, data) => {
-    const dialog = Application.instance.dialogs.getPersistent("search") as SearchDialog;
-    dialog.data = data;
-    dialog.show(appWindow.win);
+
   });
 
   ipcMain.handle(`is-dialog-visible-${id}`, (e, dialog) => {
@@ -68,18 +54,14 @@ export const runMessagingService = (appWindow: AppWindow) => {
   });
 
   ipcMain.on(`show-tab-preview-${id}`, (e, tab) => {
-    const dialog = Application.instance.dialogs.getPersistent("preview") as PreviewDialog;
-    dialog.tab = tab;
-    dialog.show(appWindow.win);
+
   });
 
   ipcMain.on(`hide-tab-preview-${id}`, (e, tab) => {
-    const dialog = Application.instance.dialogs.getPersistent("preview") as PreviewDialog;
-    dialog.hide();
+
   });
 
   ipcMain.on(`find-show-${id}`, () => {
-    showFindDialog(appWindow.win);
   });
 
   ipcMain.on(`find-in-page-${id}`, () => {
@@ -87,29 +69,29 @@ export const runMessagingService = (appWindow: AppWindow) => {
   });
 
   ipcMain.on(`show-add-bookmark-dialog-${id}`, (e, left, top) => {
-    showAddBookmarkDialog(appWindow.win, left, top);
+
   });
 
   if (process.env.ENABLE_EXTENSIONS) {
     ipcMain.on(`show-extension-popup-${id}`, (e, left, top, url, inspect) => {
-      showExtensionDialog(appWindow.win, left, top, url, inspect);
+
     });
   }
 
   ipcMain.on(`show-downloads-dialog-${id}`, (e, left, top) => {
-    showDownloadsDialog(appWindow.win, left, top);
+
   });
 
   ipcMain.on(`show-menu_extra-dialog-${id}`, (e, left, top) => {
-    showMenuExtraDialog(appWindow.win, left, top);
+
   });
 
   ipcMain.on(`show-zoom-dialog-${id}`, (e, left, top) => {
-    showZoomDialog(appWindow.win, left, top);
+
   });
 
   ipcMain.on(`show-tabgroup-dialog-${id}`, (e, tabGroup) => {
-    showTabGroupDialog(appWindow.win, tabGroup);
+
   });
 
   ipcMain.on(`edit-tabgroup-${id}`, (e, tabGroup) => {
@@ -121,7 +103,7 @@ export const runMessagingService = (appWindow: AppWindow) => {
   });
 
   ipcMain.on(`show-incognitoMenu-dialog-${id}`, (e, x, y) => {
-    showIncognitoDialog(appWindow.win, x, y);
+
   });
 
   //-------------ztz TEST-----------
@@ -401,16 +383,4 @@ export const runMessagingService = (appWindow: AppWindow) => {
       // e.sender.send(id, password);
     });
   }
-
-  ipcMain.handle(
-    `show-bookmarks-bar-dropdown-${id}`,
-    (event, folderId: string, bookmarks: IBookmark[], { x, y }: { x: number; y: number }) => {
-      bookmarkMenu
-        .createDropdown(appWindow, folderId, bookmarks)
-        .popup({ x: Math.floor(x), y: Math.floor(y), window: appWindow.win });
-    },
-  );
-  ipcMain.handle(`show-bookmarks-bar-context-menu-${id}`, (event, item: IBookmark) => {
-    bookmarkMenu.createMenu(appWindow, item).popup({ window: appWindow.win });
-  });
 };

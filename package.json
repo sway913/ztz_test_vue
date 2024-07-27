@@ -23,7 +23,6 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
-    "electron-chrome-extensions-suit": "^1.0.2",
     "crypto-js": "^4.0.0",
     "js-base64": "^3.4.4",
     "koffi": "^2.8.8"
@@ -39,9 +38,6 @@
     "@vue/eslint-config-prettier": "^9.0.0",
     "@vue/eslint-config-typescript": "^12.0.0",
     "@seald-io/nedb": "^4.0.4",
-    "@ironiumstudios/rpc-core": "^3.0.1",
-    "@ironiumstudios/rpc-electron": "^3.0.1",
-    "@ironiumstudios/rpc-node": "^3.0.1",
     "@types/jszip": "^3.4.1",
     "electron": "^31.0.1",
     "electron-builder": "^24.13.3",
@@ -57,7 +53,6 @@
     "sass-loader": "^12.4.0",
     "systeminformation": "^5.22.7",
     "file-type": "^19.2.0",
-    "parse-ico": "^1.0.2",
-    "x-default-browser": "^0.5.2"
+    "parse-ico": "^1.0.2"
   }
 }

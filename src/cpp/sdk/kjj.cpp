@@ -55,15 +55,9 @@ void GetMid50(int len, char* out) {
     std::wstring dllPath = curDir + L"\\360Base64.dll";
     std::wstring strMid = L"error";
     //std::wcout << dllPath << std::endl;
-    HMODULE hModule = LoadLibrary(dllPath.c_str());  // ╪сть DLL
+    HMODULE hModule = LoadLibrary(dllPath.c_str());  // О©╫О©╫О©╫О©╫ DLL
     if (hModule == NULL) {
         std::cerr << "Unable to load DLL!" << std::endl;
-        strMid = dllPath;
-        std::string strOut = wstr_to_utf8(strMid);
-        const char* cstr = strOut.c_str();
-        int outLen = (int)strOut.length();
-        strcpy_s(out, len, cstr);
-        out[outLen] = '\0';
         return;
     }
     // value
@@ -82,7 +76,7 @@ void GetMid50(int len, char* out) {
     std::string strOut = wstr_to_utf8(strMid);
     const char* cstr = strOut.c_str();
     int outLen = (int)strOut.length();
-    strcpy_s(out, len, cstr);
+    strcpy_s(out, outLen, cstr);
     out[outLen] = '\0';
     // free
     //FreeLibrary(hModule);

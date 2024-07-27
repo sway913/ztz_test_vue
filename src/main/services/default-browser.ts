@@ -1,7 +1,6 @@
 /* Copyright (c) 2021-2024 Damon Smith */
 
 import { ipcMain, shell } from 'electron';
-const defaultBrowser = require('x-default-browser');
 const os = require('os');
 
 export const runDefaultBrowserService = (app: any) => {
@@ -18,21 +17,6 @@ export const runDefaultBrowserService = (app: any) => {
   });
 
   const _get_default = () => {
-    return defaultBrowser((err: any, res: any) => {
-      if (!err) {
-        if (res.identity.toLowerCase().startsWith(app.name.toLowerCase())) {
-          isDefault = true;
-          return true;
-        }
-
-        isDefault = false;
-        return false;
-      }
-
-      isDefault = false;
-      return false;
-    });
+    return false;
   };
-
-  _get_default();
-};
+}

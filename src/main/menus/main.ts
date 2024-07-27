@@ -240,10 +240,7 @@ export const getMainMenu = () => {
         ...createMenuItem(
           ["CmdOrCtrl+Shift+B"],
           async () => {
-            const { bookmarksBar } = Application.instance.settings.object;
-            await Application.instance.settings.updateSettings({
-              bookmarksBar: !bookmarksBar,
-            });
+
           },
           "Toggle bookmarks bar",
         ),

@@ -61,25 +61,12 @@ export class ViewManager extends EventEmitter {
       this.create(details);
     });
 
-    ipcMain.on("save-as-menu-extra", async (e) => {
-      const { title, webContents } = Application.instance.windows.current.viewManager.selected;
-
-      const { canceled, filePath } = await dialog.showSaveDialog({
-        defaultPath: title,
-        filters: [
-          { name: "Webpage, Complete", extensions: ["html", "htm"] },
-          { name: "Webpage, HTML Only", extensions: ["htm", "html"] },
-        ],
-      });
-
-      if (canceled) return;
-
-      const ext = extname(filePath);
-
-      await webContents.savePage(filePath, ext === ".htm" ? "HTMLOnly" : "HTMLComplete");
-    });
+    ipcMain.on("save-as-menu-extra", async (e) => {});
 
     ipcMain.on("Print", () => {
+      if (!this.selected || !this.selected.webContents) {
+        return;
+      }
       this.selected.webContents.print();
     });
 
@@ -93,13 +80,17 @@ export class ViewManager extends EventEmitter {
 
     ipcMain.on(IpcEvents.PC_VIEW_F12, (e, id: number, focus: boolean) => {
       const view = this.views.get(id);
+      if (!view || !view.webContents) {
+        return;
+      }
       view.webContents.openDevTools({ mode: "detach" });
     });
 
     ipcMain.removeHandler("get-tab-zoom");
     ipcMain.handle("get-tab-zoom", (e: any, tabId: number) => {
-      // const zoom = this.findByContentView(tabId).viewManager.views.get(tabId)
-      //  .webContents.zoomFactor;
+      if (!this.selected || !this.selected.webContents) {
+        return;
+      }
       return this.selected.webContents.zoomFactor;
     });
 
@@ -109,11 +100,17 @@ export class ViewManager extends EventEmitter {
 
     ipcMain.on(`mute-view-${id}`, (e, tabId: number) => {
       const view = this.views.get(tabId);
+      if (!view || !view.webContents) {
+        return;
+      }
       view.webContents.setAudioMuted(true);
     });
 
     ipcMain.on(`unmute-view-${id}`, (e, tabId: number) => {
       const view = this.views.get(tabId);
+      if (!view || !view.webContents) {
+        return;
+      }
       view.webContents.setAudioMuted(false);
     });
 
@@ -121,39 +118,11 @@ export class ViewManager extends EventEmitter {
       this.clear();
     });
 
-    ipcMain.on("change-zoom", (e, zoomDirection) => {
-      const newZoomFactor =
-        this.selected.webContents.zoomFactor +
-        (zoomDirection === "in" ? ZOOM_FACTOR_INCREMENT : -ZOOM_FACTOR_INCREMENT);
+    ipcMain.on("change-zoom", (e, zoomDirection) => {});
 
-      if (newZoomFactor <= ZOOM_FACTOR_MAX && newZoomFactor >= ZOOM_FACTOR_MIN) {
-        this.selected.webContents.zoomFactor = newZoomFactor;
-        this.selected.emitEvent("zoom-updated", this.selected.webContents.zoomFactor);
-      } else {
-        e.preventDefault();
-      }
-      this.emitZoomUpdate();
-    });
+    ipcMain.on("change-zoom-menu", (e, zoomDirection) => {});
 
-    ipcMain.on("change-zoom-menu", (e, zoomDirection) => {
-      const newZoomFactor =
-        this.selected.webContents.zoomFactor +
-        (zoomDirection === "in" ? ZOOM_FACTOR_INCREMENT : -ZOOM_FACTOR_INCREMENT);
-
-      if (newZoomFactor <= ZOOM_FACTOR_MAX && newZoomFactor >= ZOOM_FACTOR_MIN) {
-        this.selected.webContents.zoomFactor = newZoomFactor;
-        this.selected.emitEvent("zoom-updated", this.selected.webContents.zoomFactor);
-      } else {
-        e.preventDefault();
-      }
-      this.emitZoomUpdate(false);
-    });
-
-    ipcMain.on("reset-zoom", (e) => {
-      this.selected.webContents.zoomFactor = 1;
-      this.selected.emitEvent("zoom-updated", this.selected.webContents.zoomFactor);
-      this.emitZoomUpdate();
-    });
+    ipcMain.on("reset-zoom", (e) => {});
 
     this.setBoundsListener();
   }
@@ -168,9 +137,18 @@ export class ViewManager extends EventEmitter {
 
   public create(details, isNext = false, sendMessage = true) {
     const view = new View(this.window, details, this.incognito);
+    if (!view) {
+      return;
+    }
 
     const { webContents } = view.webContentsView;
+    if (!webContents) {
+      return;
+    }
     const { id } = view;
+    if (!id) {
+      return;
+    }
 
     this.views.set(id, view);
 
@@ -198,7 +176,7 @@ export class ViewManager extends EventEmitter {
   }
 
   public async select(id: number, focus = true) {
-    console.trace();
+    // console.trace();
     const { selected } = this;
     const view = this.views.get(id);
     if (!view) {
@@ -214,7 +192,9 @@ export class ViewManager extends EventEmitter {
 
     if (focus) {
       // Also fixes switching tabs with Ctrl + Tab
-      view.webContents.focus();
+      if (view.webContents) {
+        view.webContents.focus();
+      }
     } else {
       this.window.webContents.focus();
     }
@@ -226,23 +206,13 @@ export class ViewManager extends EventEmitter {
 
     view.updateNavigationState();
 
-    Application.instance.sessions.chromeExtensions.selectTab(view.webContents);
     this.emit("activated", id);
 
     // TODO: this.emitZoomUpdate(false);
   }
 
   public changeZoom(zoomDirection: "in" | "out", e?: any) {
-    const newZoomFactor =
-      this.selected.webContents.zoomFactor + (zoomDirection === "in" ? ZOOM_FACTOR_INCREMENT : -ZOOM_FACTOR_INCREMENT);
 
-    if (newZoomFactor <= ZOOM_FACTOR_MAX && newZoomFactor >= ZOOM_FACTOR_MIN) {
-      this.selected.webContents.zoomFactor = newZoomFactor;
-      this.selected.emitEvent("zoom-updated", this.selected.webContents.zoomFactor);
-    } else {
-      e?.preventDefault();
-    }
-    this.emitZoomUpdate();
   }
 
   public async fixBounds() {
@@ -302,10 +272,6 @@ export class ViewManager extends EventEmitter {
   }
 
   public emitZoomUpdate(showDialog = true) {
-    Application.instance.dialogs
-      .getDynamic("zoom")
-      ?.webContentsView?.webContents?.send("zoom-factor-updated", this.selected.webContents.zoomFactor);
 
-    this.window.webContents.send("zoom-factor-updated", this.selected.webContents.zoomFactor, showDialog);
   }
 }
